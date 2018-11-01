@@ -47,11 +47,11 @@ export function shieldFilter(list:ICar[]){
   return arr;
 }
 
-const logoFile = path.join(rootPath,'src','assets','logo.xlsx');
+const logoFile = path.join(rootPath,'src','assets','logos.xlsx');
 const logoJson = readXlsx(logoFile) as ILogo[]
-export function logoFilter(chName:string){
+export function logoFilter(brand:string){
   const obj = logoJson.find(item=>{
-    return item.chName === chName
+    return item.brand === brand
   })
   if(obj){
     return obj.logo;

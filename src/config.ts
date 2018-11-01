@@ -11,11 +11,11 @@ export const filesPath = path.join(rootPath, 'files');
 
 export const fields = [
   'brand',
+  'logo',
   'mappedBrand',
   'subBrand',
   'name',
   'chName',
-  'logo',
   'otherName',
   'carType',
   'carTypeFilter',

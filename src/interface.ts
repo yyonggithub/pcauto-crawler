@@ -46,11 +46,16 @@ export interface IRange {
   range: string;
 }
 
-export interface ILogo{
+export interface ITmp{
   name:string;
   logo:string;
   chName:string;
   zhName:string;
   enName:string;
   pyName:string;
+}
+
+export interface ILogo{
+  brand:string;
+  logo:string;
 }

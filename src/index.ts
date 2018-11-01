@@ -140,7 +140,7 @@ function asyncCarsHtml(html: string) {
                 chName = name.replace(/·/g, '')
                 chName = chName.replace(/\s/g, '_');
 
-                logo = logoFilter(chName);
+                logo = logoFilter(brand);
 
                 const reg = new RegExp(brand, 'g');
                 const regExpExecArray = reg.exec(chName)
