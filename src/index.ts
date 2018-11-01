@@ -12,6 +12,7 @@ import { handleNeeded } from './utils/handleNeeded';
 import { handleRange } from './utils/handleRange';
 import { priceRange } from './config';
 import { strAddBom } from './utils/strAddBom';
+import { mappedBrandFilter, marketStatusFilter, carTypeFilter, shieldFilter, logoFilter } from './utils/filter'
 
 
 // 所有车辆请求地址
@@ -21,18 +22,23 @@ const allCarName = 'allcar';
 const electrocarUrl = 'https://price.pcauto.com.cn/cars/7/';
 const electrocarName = 'electrocar';
 
-const notNeedFile = path.join(__dirname, 'assets', 'notneed.xlsx');
-const notNeedJson = readXlsx(notNeedFile)
+// const notNeedFile = path.join(__dirname, 'assets', 'notneed.xlsx');
+// const notNeedJson = readXlsx(notNeedFile)
 
-getAllCar(allCarUrl, allCarName, notNeedJson);
-getAllCar(electrocarUrl, electrocarName, notNeedJson);
+getAllCar(allCarUrl, allCarName);
+getAllCar(electrocarUrl, electrocarName);
 
 
-function getAllCar(url: string, fileName: string, notNeed: INotNeed[]) {
+function getAllCar(url: string, fileName: string) {
   getHttp(url).then(text => {
     fs.writeFileSync(path.join(filesPath, `${fileName}.html`), text, { encoding: 'utf8' });
 
-    const { downList, normalList, upList } = asyncCarsHtml(text, notNeed);
+    let { downList, normalList, upList } = asyncCarsHtml(text);
+
+    downList = shieldFilter(downList);
+    normalList = shieldFilter(normalList);
+    upList = shieldFilter(upList);
+
     fs.writeFileSync(path.join(filesPath, `${fileName}-down.json`), JSON.stringify(downList), { encoding: 'utf8' });
     fs.writeFileSync(path.join(filesPath, `${fileName}-normal.json`), JSON.stringify(normalList), { encoding: 'utf8' });
     fs.writeFileSync(path.join(filesPath, `${fileName}-up.json`), JSON.stringify(upList), { encoding: 'utf8' });
@@ -57,7 +63,7 @@ function getAllCar(url: string, fileName: string, notNeed: INotNeed[]) {
  * @param {INotNeed[]} notNeed 不需要的车辆品牌
  * @returns
  */
-function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
+function asyncCarsHtml(html: string) {
   const list: ICar[] = []
   const downList: ICar[] = [];
   const normalList: ICar[] = [];
@@ -69,7 +75,11 @@ function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
   brandsEle.each((index, element) => {
     let iconTag: string;
     let brand: string;
-    let needed: boolean;
+    let needed: string;
+    let mappedBrand: string;
+    let statusFilter: string;
+    let typeFilter: string;
+    let logo: any;
     // let name: string;
     // let href: string;
     // let type: string;
@@ -87,7 +97,8 @@ function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
     const brandEle = cheerioEle.find('a.aPic p')
     if (brandEle && brandEle.length > 0) {
       brand = brandEle[0].firstChild.data || '';
-      needed = handleNeeded(brand, notNeedJson);
+      // needed = handleNeeded(brand, notNeedJson);
+      mappedBrand = mappedBrandFilter(brand)
     }
 
     const modA = cheerioEle.find('div.modA')
@@ -115,6 +126,7 @@ function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
             const num = tmpNum ? tmpNum[0] : '';
 
             type = type.replace(num, '');
+            typeFilter = carTypeFilter(type);
 
             const carsEle = $(el).find('li');
 
@@ -128,6 +140,8 @@ function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
                 chName = name.replace(/·/g, '')
                 chName = chName.replace(/\s/g, '_');
 
+                logo = logoFilter(chName);
+
                 const reg = new RegExp(brand, 'g');
                 const regExpExecArray = reg.exec(chName)
                 if (brand === chName) {
@@ -138,12 +152,14 @@ function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
                   otherName = chName;
                 }
 
-                otherName = otherName.replace(/^-/g,'');
+                otherName = otherName.replace(/^-/g, '');
 
                 const redMskE = $(e).find('p.tit em')
                 if (redMskE && redMskE.length > 0) {
                   status = redMskE[0].firstChild.data || '在售';
                 }
+
+                statusFilter = marketStatusFilter(status);
 
                 const priceE = $(e).find('p.price span')
                 if (priceE && priceE.length > 0) {
@@ -174,14 +190,16 @@ function asyncCarsHtml(html: string, notNeed: INotNeed[]) {
 
                 const car: ICar = {
                   brand,
-                  needed,
+                  mappedBrand,
                   subBrand,
                   name,
                   chName,
+                  logo,
                   otherName,
-                  type,
-                  num,
+                  carType: type,
+                  carTypeFilter: typeFilter,
                   status,
+                  statusFilter,
                   lowPrice,
                   heightPrice,
                   intLowPrice,
