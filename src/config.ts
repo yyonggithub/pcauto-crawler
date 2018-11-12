@@ -1,6 +1,8 @@
 import * as path from 'path';
 import { IRange, ICar } from './interface';
 
+export const pcautoUrl = 'https://price.pcauto.com.cn';
+
 export const rootPath = path.join(__dirname, '../');
 
 export const pricePath = path.join(rootPath, 'price');
@@ -14,16 +16,22 @@ export const fields = [
   'logo',
   'mappedBrand',
   'subBrand',
+  'href',
   'name',
   'chName',
+  'enName',
   'otherName',
+  'otherName2',
+  'imported',
   'carType',
   'carTypeFilter',
-  // 'num',
+  'bodyTypeChinese',
+  'bodyType',
+  'num',
   'status',
   'statusFilter',
-  // 'lowPrice',
-  // 'heightPrice',
+  'lowPrice',
+  'heightPrice',
   'intLowPrice',
   'ceilingHighPrice',
   '5万以下',
@@ -39,6 +47,17 @@ export const fields = [
   '40-60万',
   '60-80万',
   '80万以上',]
+
+export const fieldsOfFive = [
+  'brand',
+  'mappedBrand',
+  'name',
+  'chName',
+  'enName',
+  'otherName',
+  'otherName2',
+  'imported',
+]
 
 // [5-7万	7-10万	10-13万	13-15万	15-18万	18-20万	20-25万	25-30万	30-40万	40-60万	60-80万	80万以上]
 // 价格区间

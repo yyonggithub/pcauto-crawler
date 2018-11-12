@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import * as json2csv from 'json2csv';
 
 import { getHttp } from './utils/getHttp';
-import { rootPath, filesPath, fields } from './config';
+import { rootPath, filesPath, fields, fieldsOfFive } from './config';
 import { ICar, INotNeed } from './interface';
 import { Range, ChangeRange } from './enum';
 import { readXlsx } from './utils/readXlsx';
@@ -12,7 +12,20 @@ import { handleNeeded } from './utils/handleNeeded';
 import { handleRange } from './utils/handleRange';
 import { priceRange } from './config';
 import { strAddBom } from './utils/strAddBom';
-import { mappedBrandFilter, marketStatusFilter, carTypeFilter, shieldFilter, logoFilter } from './utils/filter'
+import {
+  mappedBrandFilter,
+  marketStatusFilter,
+  carTypeFilter,
+  shieldFilter,
+  getLogo,
+  getBodyTypeFromPrice,
+  getBodyType,
+  getCarPage,
+  getImported,
+  getOtherName2,
+  getEnName,
+} from './utils/filter'
+import { analyzeCarInfoPageAndGetBodyTypeChinese } from './utils/getCarInfoPage';
 
 
 // 所有车辆请求地址
@@ -25,34 +38,43 @@ const electrocarName = 'electrocar';
 // const notNeedFile = path.join(__dirname, 'assets', 'notneed.xlsx');
 // const notNeedJson = readXlsx(notNeedFile)
 
-getAllCar(allCarUrl, allCarName);
-getAllCar(electrocarUrl, electrocarName);
+getAllCar(allCarUrl, allCarName).then(res=>{
+  console.log('success')
+})
+// getAllCar(electrocarUrl, electrocarName);
 
 
-function getAllCar(url: string, fileName: string) {
-  getHttp(url).then(text => {
-    fs.writeFileSync(path.join(filesPath, `${fileName}.html`), text, { encoding: 'utf8' });
+async function getAllCar(url: string, fileName: string) {
+  // const text = await getHttp(url);
+  const text = fs.readFileSync(path.join(filesPath,'allcar.html'),{encoding:'utf8'})
 
-    let { downList, normalList, upList } = asyncCarsHtml(text);
+  fs.writeFileSync(path.join(filesPath, `${fileName}.html`), text, { encoding: 'utf8' });
 
-    downList = shieldFilter(downList);
-    normalList = shieldFilter(normalList);
-    upList = shieldFilter(upList);
+  let { downList, normalList, upList } = await analyzeCarsHtml(text);
 
-    fs.writeFileSync(path.join(filesPath, `${fileName}-down.json`), JSON.stringify(downList), { encoding: 'utf8' });
-    fs.writeFileSync(path.join(filesPath, `${fileName}-normal.json`), JSON.stringify(normalList), { encoding: 'utf8' });
-    fs.writeFileSync(path.join(filesPath, `${fileName}-up.json`), JSON.stringify(upList), { encoding: 'utf8' });
+  console.log(normalList);
 
-    const json2csvParser = new json2csv.Parser({ fields });
-    const downCsv = json2csvParser.parse(downList);
-    const normalCsv = json2csvParser.parse(normalList);
-    const upCsv = json2csvParser.parse(upList);
-    fs.writeFileSync(path.join(filesPath, `${fileName}-down.csv`), strAddBom(downCsv), { encoding: 'utf8' });
-    fs.writeFileSync(path.join(filesPath, `${fileName}-normal.csv`), strAddBom(normalCsv), { encoding: 'utf8' });
-    fs.writeFileSync(path.join(filesPath, `${fileName}-up.csv`), strAddBom(upCsv), { encoding: 'utf8' });
+  // downList = shieldFilter(downList);
+  // normalList = shieldFilter(normalList);
+  // upList = shieldFilter(upList);
 
-    console.log('finish');
-  });
+  fs.writeFileSync(path.join(filesPath, `${fileName}-down.json`), JSON.stringify(downList), { encoding: 'utf8' });
+  fs.writeFileSync(path.join(filesPath, `${fileName}-normal.json`), JSON.stringify(normalList), { encoding: 'utf8' });
+  fs.writeFileSync(path.join(filesPath, `${fileName}-up.json`), JSON.stringify(upList), { encoding: 'utf8' });
+
+  const json2csvParser = new json2csv.Parser({ fields, excelStrings: true });
+  // const json2csvParser = new json2csv.Parser({ fields:fieldsOfFive,excelStrings:true });
+  const downCsv = json2csvParser.parse(downList);
+  const normalCsv = json2csvParser.parse(normalList);
+  const upCsv = json2csvParser.parse(upList);
+  fs.writeFileSync(path.join(filesPath, `${fileName}-down.csv`), strAddBom(downCsv), { encoding: 'utf8' });
+  fs.writeFileSync(path.join(filesPath, `${fileName}-normal.csv`), strAddBom(normalCsv), { encoding: 'utf8' });
+  fs.writeFileSync(path.join(filesPath, `${fileName}-up.csv`), strAddBom(upCsv), { encoding: 'utf8' });
+
+  console.log('finish');
+
+  // getHttp(url).then(text => {
+  // });
 }
 
 
@@ -63,7 +85,7 @@ function getAllCar(url: string, fileName: string) {
  * @param {INotNeed[]} notNeed 不需要的车辆品牌
  * @returns
  */
-function asyncCarsHtml(html: string) {
+async function analyzeCarsHtml(html: string) {
   const list: ICar[] = []
   const downList: ICar[] = [];
   const normalList: ICar[] = [];
@@ -131,8 +153,11 @@ function asyncCarsHtml(html: string) {
             const carsEle = $(el).find('li');
 
             if (carsEle && carsEle.length > 0) {
-              carsEle.each((n, e) => {
+              carsEle.each(async (n, e) => {
                 let name: string, chName: string, status: string = '在售', lowPrice: string = "", heightPrice: string = "", otherName: string;
+                let href: string = '';
+                let otherName2: string;
+                let enName: string;
 
                 const carE = $(e).find('p.tit>a')
                 name = carE[0].attribs.title || '';
@@ -140,11 +165,13 @@ function asyncCarsHtml(html: string) {
                 chName = name.replace(/·/g, '')
                 chName = chName.replace(/\s/g, '_');
 
-                logo = logoFilter(brand);
+                logo = getLogo(brand);
 
-                const reg = new RegExp(brand, 'g');
+                // const reg = new RegExp(brand, 'g');
+                const reg = new RegExp(mappedBrand, 'g');
                 const regExpExecArray = reg.exec(chName)
-                if (brand === chName) {
+                // if (brand === chName) {
+                if (mappedBrand === chName) {
                   otherName = chName;
                 } else if (regExpExecArray) {
                   otherName = chName.replace(regExpExecArray[0], '').replace(/^\_/g, '');
@@ -153,6 +180,18 @@ function asyncCarsHtml(html: string) {
                 }
 
                 otherName = otherName.replace(/^-/g, '');
+
+                const imported = getImported(otherName);
+
+                otherName = otherName.replace(/（进口）/g, '');
+                otherName2 = getOtherName2(otherName);
+
+                enName = getEnName(mappedBrand, otherName);
+
+                const aEle = $(e).find('p.tit a')
+                if (aEle && aEle.length > 0) {
+                  href = aEle[0].attribs.href || ''
+                }
 
                 const redMskE = $(e).find('p.tit em')
                 if (redMskE && redMskE.length > 0) {
@@ -175,28 +214,44 @@ function asyncCarsHtml(html: string) {
                   }
                 }
 
-                let intLowPrice: number = 0, ceilingHighPrice: number = 0;
-                try {
-                  intLowPrice = Math.floor(+lowPrice);
-                  ceilingHighPrice = Math.floor(+heightPrice) + 1;
-                } catch (err) {
-                  intLowPrice = 0;
-                  ceilingHighPrice = 0;
+                let intLowPrice: number = NaN, ceilingHighPrice: number = NaN;
+                if (lowPrice !== '' && heightPrice !== '') {
+                  try {
+                    intLowPrice = Math.floor(+lowPrice);
+                    ceilingHighPrice = Math.floor(+heightPrice) + 1;
+                  } catch (err) {
+                    intLowPrice = NaN;
+                    ceilingHighPrice = NaN;
+                  }
                 }
+
+                let bodyTypeChinese = getBodyTypeFromPrice(name);
+                bodyTypeChinese = analyzeCarInfoPageAndGetBodyTypeChinese(name, bodyTypeChinese);
+                const bodyType = getBodyType(bodyTypeChinese)
 
                 const downFields = handleRange(intLowPrice, ceilingHighPrice, priceRange, ChangeRange.down)
                 const normalFields = handleRange(intLowPrice, ceilingHighPrice, priceRange, ChangeRange.normal)
                 const upFields = handleRange(intLowPrice, ceilingHighPrice, priceRange, ChangeRange.up)
 
+                // const b = await getCarPage(href);
+
+
                 const car: ICar = {
+                  // num,
                   brand,
                   mappedBrand,
                   subBrand,
+                  href,
                   name,
                   chName,
-                  logo,
+                  enName,
                   otherName,
+                  otherName2,
+                  imported,
+                  logo,
                   carType: type,
+                  bodyTypeChinese,
+                  bodyType,
                   carTypeFilter: typeFilter,
                   status,
                   statusFilter,
@@ -229,7 +284,12 @@ function asyncCarsHtml(html: string) {
     downList,
     normalList,
     upList,
-  };
+  }
+  // return Promise.resolve({
+  //   downList,
+  //   normalList,
+  //   upList,
+  // });
 }
 
 

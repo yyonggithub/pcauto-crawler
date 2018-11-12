@@ -1,3 +1,5 @@
+// TODO: 抛弃
+
 import * as fs from 'fs';
 import fetch from 'isomorphic-fetch';
 import * as cheerio from 'cheerio';
@@ -44,9 +46,9 @@ function getHttp(url: string): Promise<string> {
   })
 }
 
-// const html = getHtml();
+// const html = getHtml(url);
 
-// getHtml().then(text => {
+// getHtml(url).then(text => {
 //   fs.writeFileSync('./text.html', text, { encoding: 'utf8' })
 // })
 
@@ -138,17 +140,26 @@ async function analyze(json: any[]) {
   // json.forEach(async item => {
   //   await getPriceHtml(item.brand, item.href)
   // })
-  const list: Promise<any>[] = [];
-  for (const obj of json) {
-    list.push(getPriceHtml(obj.brand, obj.href))
+  // const list: Promise<any>[] = [];
+  // for (const obj of json) {
+  //   list.push(getPriceHtml(obj.brand, obj.href))
+  // }
+  // // return list;
+  // Promise.all(list).then(() => {
+  //   console.log('success');
+  // }).catch(err => {
+  //   console.log(err);
+  // })
+  for (let i = 0; i < json.length; i++) {
+    await getPriceHtml(json[i].brand,json[i].href);
+    await wait(`index: ${i}, count=${json.length}`)
   }
-  // return list;
-  Promise.all(list).then(() => {
-    console.log('success');
-  }).catch(err => {
-    console.log(err);
-  })
+
+  console.log('success');
 }
+
+const json = readDemo1Html()
+analyze(json);
 
 async function getCarsByBrand(brand: string, brandId: number) {
   const url = `https://price.pcauto.com.cn/index/js/5_5/treedata-cn-${brandId}.js?t=${Math.floor(Math.random() * 10 + 1)}`
@@ -374,16 +385,16 @@ function analyzePriceByAllCars() {
 
 
 
-const json = readDemo1Html();
+// const json = readDemo1Html();
 
-const list = getCarsInfo(json);
+// const list = getCarsInfo(json);
 
 let allCars: any[] = []
 
-list.forEach(item => {
-  const cars = analyzeCarsHtml(item)
-  allCars = allCars.concat(cars);
-})
+// list.forEach(item => {
+//   const cars = analyzeCarsHtml(item)
+//   allCars = allCars.concat(cars);
+// })
 
 async function wait(str: string) {
   return new Promise(resolve => {
@@ -395,8 +406,5 @@ async function wait(str: string) {
   })
 }
 
-const price = analyzePriceByAllCars();
-
-
-
-fs.writeFileSync('./price.json', JSON.stringify(price))
+// const price = analyzePriceByAllCars();
+// fs.writeFileSync('./price.json', JSON.stringify(price))

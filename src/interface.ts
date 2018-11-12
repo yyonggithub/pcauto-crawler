@@ -1,13 +1,16 @@
 export interface ICar {
   // iconTag: string;
+  imported:string;
   brand: string;
   mappedBrand: string;
   subBrand: string;
   name: string;
   chName: string;
-  logo:string;
+  enName:string;
+  logo: string;
   otherName: string;
-  // href: string;
+  otherName2:string;
+  href: string;
   carType: string;
   carTypeFilter: string;
   // num: string;
@@ -17,6 +20,8 @@ export interface ICar {
   heightPrice: string;
   intLowPrice: number;
   ceilingHighPrice: number;
+  bodyTypeChinese:string;
+  bodyType:string;
   [propName: string]: any;
 }
 
@@ -27,6 +32,13 @@ export interface INotNeed {
 export interface IMappedBrand {
   brand: string;
   mappedBrand: string;
+  mappedLogo: string;
+  logo: string;
+  pyAllMappedBrandWords: string;
+  pyFirstMapedBrandWords: string;
+  pyFirstFourMappedBrandCharacters: string;
+  brandFirstTwoMappedBrandWords: string;
+  homophonesOfMappedBrand: string;
 }
 
 export interface ICarTypeFilter {
@@ -46,16 +58,35 @@ export interface IRange {
   range: string;
 }
 
-export interface ITmp{
-  name:string;
-  logo:string;
-  chName:string;
-  zhName:string;
-  enName:string;
-  pyName:string;
+export interface ITmp {
+  name: string;
+  logo: string;
+  chName: string;
+  zhName: string;
+  enName: string;
+  pyName: string;
 }
 
-export interface ILogo{
+export interface ILogo {
+  brand: string;
+  logo: string;
+}
+
+/**
+ * price.json
+ */
+export interface IPrice{
   brand:string;
-  logo:string;
+  car:string;
+  isSell:string;
+  lowPrice:string;
+  heightPrice:string;
+  href:string;
+  rank:string;
+  type:string;
+}
+
+export interface ICarBodyType{
+  bodyTypeChinese:string;
+  bodyType:string;
 }

@@ -11,7 +11,7 @@ export function getHttp(url: string): Promise<string> {
       res.on('end', () => {
         // let buffer = new Buffer(chunks);
         let buffer = Buffer.concat(chunks);
-        const str = iconv.decode(buffer, 'GBK')
+        const str = iconv.decode(buffer, 'gbk')
         resolve(str);
       })
       res.on('error', (err) => {
