@@ -7,9 +7,24 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "启动程序",
+      "name": "启动程序-index",
       "args": [
         "${workspaceRoot}/src/index.ts"
+      ],
+      "runtimeArgs": [
+        "--nolazy",
+        "-r",
+        "ts-node/register"
+      ],
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "启动程序-index1",
+      "args": [
+        "${workspaceRoot}/src/index1.ts"
       ],
       "runtimeArgs": [
         "--nolazy",
