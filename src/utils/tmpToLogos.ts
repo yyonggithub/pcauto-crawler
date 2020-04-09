@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as json2csv from 'json2csv';
 
 import { readXlsx } from "./readXlsx";
-import { rootPath } from '../config'
-import { IMappedBrand, ITmp } from '../interface';
+import { rootPath } from '../pcauto/config'
+import { IMappedBrand, ITmp } from '../pcauto/interface';
 import { strAddBom } from './strAddBom';
 
 const brandFile = path.join(rootPath, 'src', 'assets', 'MappedBrand.xlsx');

@@ -19,3 +19,8 @@ export enum ChangeRange {
   normal,
   up,
 }
+
+export enum Way {
+  'default', // 默认处理方式:只处理单页获取的价格数据
+  'price', // 默认处理方式:只处理单页获取的价格数据
+}

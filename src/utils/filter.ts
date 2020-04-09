@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as cheerio from 'cheerio';
 
 import { readXlsx } from './readXlsx';
-import { rootPath, pcautoUrl } from '../config'
-import { ICarTypeFilter, IMarketStatusFilter, IMappedBrand, ICar, ILogo, IPrice, ICarBodyType, ITmp } from '../interface';
+import { rootPath, pcautoUrl } from '../pcauto/config'
+import { ICarTypeFilter, IMarketStatusFilter, IMappedBrand, ICar, ILogo, IPrice, ICarBodyType, ITmp } from '../pcauto/interface';
 import { getHttp } from './getHttp';
 
 const typeFile = path.join(rootPath, 'src', 'assets', 'CarTypeFilter.xlsx');

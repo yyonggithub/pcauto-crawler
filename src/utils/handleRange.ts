@@ -1,5 +1,5 @@
-import { IRange } from '../interface';
-import { ChangeRange } from '../enum';
+import { IRange } from '../pcauto/interface';
+import { ChangeRange } from '../pcauto/enum';
 
 /**
  * 参数按万元为单位进行处理，返回价格所在区间

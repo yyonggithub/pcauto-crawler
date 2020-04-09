@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as cheerio from 'cheerio';
 import * as path from 'path';
 
-import { rootPath } from '../config';
+import { rootPath } from '../pcauto/config';
 
 export function readHtml(fileUrl: string) {
   let file = path.join(rootPath, 'text.html');

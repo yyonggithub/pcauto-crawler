@@ -1,16 +1,17 @@
 export interface ICar {
   // iconTag: string;
-  imported:string;
+  imported: string;
   brand: string;
   mappedBrand: string;
   subBrand: string;
   name: string;
   chName: string;
-  enName:string;
+  enName: string;
   logo: string;
   otherName: string;
-  otherName2:string;
+  otherName2: string;
   href: string;
+  // priceHref: string;
   carType: string;
   carTypeFilter: string;
   // num: string;
@@ -20,8 +21,9 @@ export interface ICar {
   heightPrice: string;
   intLowPrice: number;
   ceilingHighPrice: number;
-  bodyTypeChinese:string;
-  bodyType:string;
+  hasPrice?: boolean;
+  bodyTypeChinese: string;
+  bodyType: string;
   [propName: string]: any;
 }
 
@@ -75,18 +77,19 @@ export interface ILogo {
 /**
  * price.json
  */
-export interface IPrice{
-  brand:string;
-  car:string;
-  isSell:string;
-  lowPrice:string;
-  heightPrice:string;
-  href:string;
-  rank:string;
-  type:string;
+export interface IPrice {
+  brand: string;
+  car: string;
+  isSell: string;
+  lowPrice: string;
+  heightPrice: string;
+  href: string;
+  priceHref: string;
+  rank: string;
+  type: string;
 }
 
-export interface ICarBodyType{
-  bodyTypeChinese:string;
-  bodyType:string;
+export interface ICarBodyType {
+  bodyTypeChinese: string;
+  bodyType: string;
 }

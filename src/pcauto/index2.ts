@@ -6,9 +6,9 @@ import * as path from 'path';
 import * as cheerio from 'cheerio';
 import * as json2csv from 'json2csv';
 
-import { getHttp } from './utils/getHttp';
+import { getHttps } from '../utils/getHttp';
 import { rootPath, filesPath, fieldsOfFive } from './config';
-import { strAddBom } from './utils/strAddBom';
+import { strAddBom } from '../utils/strAddBom';
 
 interface ICar {
   // 名称
@@ -36,7 +36,7 @@ getAllCar(allCarUrl, allCarName).then(text => {
 
 
 async function getAllCar(url: string, fileName: string) {
-  const text = await getHttp(url);
+  const text = await getHttps(url);
   fs.writeFileSync(path.join(filesPath, `${fileName}-all.html`), text, { encoding: 'utf8' });
 
   return text;

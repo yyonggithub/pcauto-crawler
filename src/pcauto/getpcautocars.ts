@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { rootPath } from './config';
 import { ICar } from './interface';
-import { getCarPage } from './utils/filter';
+import { getCarPage } from '../utils/filter';
 
 const allcarStr: string = fs.readFileSync(path.join(rootPath, 'files', 'allcar-normal.json'), { encoding: 'utf8' })
 const allcarJson: ICar[] = JSON.parse(allcarStr);

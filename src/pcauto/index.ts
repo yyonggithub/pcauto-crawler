@@ -3,15 +3,15 @@ import * as path from 'path';
 import * as cheerio from 'cheerio';
 import * as json2csv from 'json2csv';
 
-import { getHttp } from './utils/getHttp';
+import { getHttps } from '../utils/getHttp';
 import { rootPath, filesPath, fields, fieldsOfFive } from './config';
 import { ICar, INotNeed } from './interface';
 import { Range, ChangeRange } from './enum';
-import { readXlsx } from './utils/readXlsx';
-import { handleNeeded } from './utils/handleNeeded';
-import { handleRange } from './utils/handleRange';
+import { readXlsx } from '../utils/readXlsx';
+import { handleNeeded } from '../utils/handleNeeded';
+import { handleRange } from '../utils/handleRange';
 import { priceRange } from './config';
-import { strAddBom } from './utils/strAddBom';
+import { strAddBom } from '../utils/strAddBom';
 import {
   mappedBrandFilter,
   marketStatusFilter,
@@ -24,8 +24,8 @@ import {
   getImported,
   getOtherName2,
   getEnName,
-} from './utils/filter'
-import { analyzeCarInfoPageAndGetBodyTypeChinese } from './utils/getCarInfoPage';
+} from '../utils/filter'
+import { analyzeCarInfoPageAndGetBodyTypeChinese } from '../utils/getCarInfoPage';
 
 
 // 所有车辆请求地址
@@ -45,14 +45,14 @@ getAllCar(allCarUrl, allCarName).then(res=>{
 
 
 async function getAllCar(url: string, fileName: string) {
-  // const text = await getHttp(url);
-  const text = fs.readFileSync(path.join(filesPath,'allcar.html'),{encoding:'utf8'})
+  const text = await getHttps(url);
+  // const text = fs.readFileSync(path.join(filesPath,'allcar.html'),{encoding:'utf8'})
 
   fs.writeFileSync(path.join(filesPath, `${fileName}.html`), text, { encoding: 'utf8' });
 
   let { downList, normalList, upList } = await analyzeCarsHtml(text);
 
-  console.log(normalList);
+  // console.log(normalList);
 
   // downList = shieldFilter(downList);
   // normalList = shieldFilter(normalList);

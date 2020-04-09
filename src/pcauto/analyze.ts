@@ -1,5 +1,5 @@
-import { getHtml } from './utils/getHtml';
-import { readHtml } from './utils/readHtml';
+import { getHtml } from '../utils/getHtml';
+import { readHtml } from '../utils/readHtml';
 
 const url = 'https://price.pcauto.com.cn/price/';
 

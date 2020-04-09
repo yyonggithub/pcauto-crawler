@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as cheerio from 'cheerio';
-import { rootPath } from '../config';
+import { rootPath } from '../pcauto/config';
 
 export function analyzeCarInfoPageAndGetBodyTypeChinese(name: string, bodyTypeChinese: string) {
   if (bodyTypeChinese === '') {
